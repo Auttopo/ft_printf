@@ -15,6 +15,9 @@
 #include "libft.h"
 //#include "convert_base.h"
 
+#include <stdio.h>
+
+#include <stdint.h>
 
 
 
@@ -91,11 +94,9 @@ char	*giant_itoa(long long n)
 }
 */
 
-void	hex_len(long long n, int *len)
+void	hex_len(uintptr_t n, int *len)
 {
-	if (n > 0)
-		n *= -1;
-	if (n < -15)
+	if (n > 15)
 		hex_len(n / 16, len);
 	*len += 1;
 }
@@ -120,17 +121,19 @@ void	convert_base(long long num, long long base, char *tbl, char *dest)
 	}
 }
 
-char	*convertor(s_strc *s, long long n)
+char	*convertor(s_strc *s, uintptr_t n)
 {
 	char *dest;
 	int	len;
 
+	len = 0;
 	hex_len(n, &len);
 	dest = malloc(sizeof(char) * (len + 1));
 	if (dest == NULL)
 		return (0);
 	write(1, "0x", 2);
 	convert_base(n, 16, "0123456789abcdef", (dest + len - 1));
+	dest[len] = '\0';
 	s->count += (len + 2);
 
 	return (dest);
@@ -161,14 +164,19 @@ void	u_case(s_strc *s, va_list *args)
 }
 
 
-
 void	p_case(s_strc *s, va_list *args)
 {
 	int TEST = 0;
 
-	long long *temp = va_arg(*args, long long *);
-	long long adress = (long long)temp;
 
+//
+	void *temp = NULL;
+	temp = va_arg(*args, void *);
+
+	uintptr_t adress = 0;
+	adress = (uintptr_t)temp;
+
+//	printf("%x\n", &temp);
 /*	char *dest = NULL;
 	dest = malloc(sizeof(char));
 	dest[0] = '\0';
@@ -179,9 +187,18 @@ void	p_case(s_strc *s, va_list *args)
 
 	ft_putstr_fd(dest, 1);
 	free(dest);*/
-	
+
 	char *str_adr = convertor(s, adress);
+	if (str_adr == NULL)
+	{
+		printf("ERRRORRR");
+		return ;
+	}
 	ft_putstr_fd(str_adr, 1);
+
+
+
+
 	free(str_adr);
 }
 
@@ -192,13 +209,18 @@ int	parser(s_strc *s, va_list *args)
 {
 	s->i += 1;
 	if (s->str[s->i] == '%')
+	{
+		printf("WRONG WAY \n");
 		perce_case(s);
+	}
 	else if (s->str[s->i] == 'c')
 		c_case(s, args);
 	else if (s->str[s->i] == 'u')
 		u_case(s, args);
 	else if (s->str[s->i] == 'p')
+	{
 		p_case(s, args);
+	}
 
 
 	s->i += 1;
@@ -232,7 +254,6 @@ int ft_printf(const char *input, ...)
 }
 
 
-#include <stdio.h>
 int	main()
 {
 //	float tt = 5.11;
@@ -244,9 +265,9 @@ int	main()
 	int *pt = &value;
 
 		
-	int temp = printf("TRU: G%p\n", pt);
-	int temp2 = ft_printf("MY_: G%p\n", pt);
-	printf("TRU:%d |MY:%d", temp, temp2);
+	int temp = printf("TRU:%pG\n", pt);
+	int temp2 = ft_printf("MY_:%pG\n", pt);
+	printf("TRU:%d |MY:%d\n", temp, temp2);
 
 
 	
