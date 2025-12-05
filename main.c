@@ -12,18 +12,15 @@
 
 #include <stdarg.h>
 #include <unistd.h>
-#include "libft.h"
-//#include "convert_base.h"
+//#include "libft.h"
+#include <stdint.h>
+#include <stdlib.h>
+
+
+
+
 
 #include <stdio.h>
-
-#include <stdint.h>
-
-
-
-
-
-
 
 
 
@@ -41,58 +38,56 @@ typedef struct s_strc
 
 /*-HELPERS------------------------------------------------------------------*/
 
-void	ft_uputnbr_fd(size_t *count, unsigned int n, int fd)
+size_t	ft_strlen(char *str)
+{
+	size_t	i;
+
+	i = 0;
+	while (str[i])
+		i++;
+	return (i);
+}
+
+int	ft_putchar_fd(char c, int fd)
+{
+	if (write(fd, &c, 1) < 1)
+		return (0);
+	return (1);
+}
+
+int	ft_putstr_fd(char *str, int fd)
+{
+	size_t	i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (write(fd, &str[i], 1) < 1)
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+int	ft_putnbr_fd(size_t *count, long long n, int fd)
 {
 	char	c;
 
+	if (n < 0)
+	{
+		if (write(1, "-", 1) < 1)
+			return (0);
+		*count += 1;
+		n = n * -1;
+	}
 	c = (n % 10 + '0');
 	if (n > 9)
-		ft_uputnbr_fd(count ,(n / 10), fd);
-	write(fd, &c, 1);
-	*count += 1;
-}
-
-
-
-/*
-void	n_len(long long n, long long *len)
-{
-	if (n > 0)
-		n *= -1;
-	if (n < -9)
-		n_len(n / 10, len);
-	*len += 1;
-}
-*/
-/*
-char	*giant_itoa(long long n)
-{
-	char		*value;
-	long long	size;
-
-	size = 0;
-	n_len(n, &size);
-	if (n < 0)
-		size += 1;
-	value = malloc(sizeof(char) * (size + 1));
-	if (value == NULL)
+		ft_putnbr_fd(count ,(n / 10), fd);
+	if (write(fd, &c, 1) < 1)
 		return (0);
-	if (n < 0)
-		value[0] = '-';
-	else
-		n *= -1;
-	value[size] = '\0';
-	while (size > 0)
-	{
-		if (value[size - 1] == '-')
-			break ;
-		value[size - 1] = ('0' - (n % 10));
-		n = n / 10;
-		size--;
-	}
-	return (value);
+	*count += 1;
+	return (1);
 }
-*/
 
 void	hex_len(uintptr_t n, int *len)
 {
@@ -108,12 +103,8 @@ void	convert_base(long long num, long long base, char *tbl, char *dest)
 
 	quot = num / base;
 	rest = num % base;
-	if (rest < 0)
-		rest *= -1;
 	if (quot == 0)
-	{
 		*dest = tbl[rest];
-	}
 	if (num / base != 0)
 	{
 		convert_base(quot, base, tbl, (dest - 1));
@@ -121,7 +112,7 @@ void	convert_base(long long num, long long base, char *tbl, char *dest)
 	}
 }
 
-char	*convertor(s_strc *s, uintptr_t n)
+char	*convertor(s_strc *s, long long n, char indice)
 {
 	char *dest;
 	int	len;
@@ -131,11 +122,18 @@ char	*convertor(s_strc *s, uintptr_t n)
 	dest = malloc(sizeof(char) * (len + 1));
 	if (dest == NULL)
 		return (0);
-	write(1, "0x", 2);
-	convert_base(n, 16, "0123456789abcdef", (dest + len - 1));
+	if (indice == 'p')
+	{
+		if (write(1, "0x", 2) < 1)
+			return (NULL);
+		s->count += 2;
+	}
+	if (indice != 'X')
+		convert_base(n, 16, "0123456789abcdef", (dest + len - 1));
+	else
+		convert_base(n, 16, "012345678ABCDEFF", (dest + len - 1));
 	dest[len] = '\0';
-	s->count += (len + 2);
-
+	s->count += (len);
 	return (dest);
 }
 
@@ -144,87 +142,123 @@ char	*convertor(s_strc *s, uintptr_t n)
 
 /*-CASES---------------------------------------------------------------------*/
 
-void	perce_case(s_strc *s)
+int	void_case(s_strc *s)
 {
-	ft_putchar_fd('%', 1);
-	s->count += 1;
+	if (write(1, "(null)", 5) < 1)
+		return (0);
+	s->count += 5;
+	return (1);
 }
 
-void	c_case(s_strc *s, va_list *args)
+int	perce_case(s_strc *s)
 {
-	char temp = va_arg(*args, int);
-	ft_putchar_fd(temp, 1);
+	if (ft_putchar_fd('%', 1) < 1)
+		return (0);
 	s->count += 1;
+	return (1);
 }
 
-void	u_case(s_strc *s, va_list *args)
+int	c_case(s_strc *s, va_list *args)
+{
+	char temp; 
+
+	temp = va_arg(*args, int);
+	if (ft_putchar_fd(temp, 1) < 1)
+		return (0);
+	s->count += 1;
+	return (1);
+}
+
+int	s_case(s_strc *s, va_list *args)
+{
+	char *temp; 
+
+	temp = va_arg(*args, char *);
+	if (ft_putstr_fd(temp, 1) < 1)
+		return (0);
+	s->count += ft_strlen(temp);
+	return (1);
+}
+
+int	p_case(s_strc *s, va_list *args)
+{
+	void 		*temp;
+	char		*str_adr;
+	uintptr_t	adress;
+
+	temp = va_arg(*args, void *);
+	adress = (uintptr_t)temp;
+	if (adress == 0)
+		return (void_case(s));
+	str_adr = convertor(s, adress, 'p');
+	if (str_adr == NULL)
+		return (0);
+	ft_putstr_fd(str_adr, 1);
+	free(str_adr);
+	return (1);
+}
+
+int	di_case(s_strc *s, va_list *args)
+{
+	int	temp = va_arg(*args, int);
+	if (ft_putnbr_fd(&s->count, temp, 1) < 1)
+		return (0);
+	return (1);
+}
+
+int	u_case(s_strc *s, va_list *args)
 {
 	unsigned int temp = va_arg(*args, unsigned int);
-	ft_uputnbr_fd(&s->count, temp, 1);
+	if (ft_putnbr_fd(&s->count, temp, 1) < 1)
+		return (0);
+	return (1);
 }
 
-
-void	p_case(s_strc *s, va_list *args)
+int	xX_case(s_strc *s, va_list *args, char indice)
 {
-	int TEST = 0;
+	unsigned int		temp;
+	char	*str;
 
-
-//
-	void *temp = NULL;
-	temp = va_arg(*args, void *);
-
-	uintptr_t adress = 0;
-	adress = (uintptr_t)temp;
-
-//	printf("%x\n", &temp);
-/*	char *dest = NULL;
-	dest = malloc(sizeof(char));
-	dest[0] = '\0';
-	char *index = "0123456789abcdef";
-	convert2(adress, 16, index, &dest);
-	if (dest == NULL)
-		return ;
-
-	ft_putstr_fd(dest, 1);
-	free(dest);*/
-
-	char *str_adr = convertor(s, adress);
-	if (str_adr == NULL)
-	{
-		printf("ERRRORRR");
-		return ;
-	}
-	ft_putstr_fd(str_adr, 1);
-
-
-
-
-	free(str_adr);
+	temp = va_arg(*args, unsigned int);
+	if (indice == 'X')
+		str = convertor(s, temp, 'X');
+	else
+		str = convertor(s, temp, 'x');
+	if (str == NULL)
+		return (0);
+	ft_putstr_fd(str, 1);
+	free(str);
+	return (1);
 }
+
 
 
 /*-MAIN---------------------------------------------------------------------*/
 
 int	parser(s_strc *s, va_list *args)
 {
+	int	check;
+
 	s->i += 1;
+	check = 1;
 	if (s->str[s->i] == '%')
-	{
-		printf("WRONG WAY \n");
-		perce_case(s);
-	}
+		check = perce_case(s);
 	else if (s->str[s->i] == 'c')
-		c_case(s, args);
-	else if (s->str[s->i] == 'u')
-		u_case(s, args);
+		check = c_case(s, args);
+	else if (s->str[s->i] == 's')
+		check = s_case(s, args);
 	else if (s->str[s->i] == 'p')
-	{
-		p_case(s, args);
-	}
-
-
+		check = p_case(s, args);
+	else if (s->str[s->i] == 'd' || s->str[s->i] == 'i')
+		check = di_case(s, args);
+	else if (s->str[s->i] == 'x')
+		check = xX_case(s, args, 'x');
+	else if (s->str[s->i] == 'X')
+		check = xX_case(s, args, 'X');
+	else if (s->str[s->i] == 'u')
+		check = u_case(s, args);
 	s->i += 1;
-	return (0);
+	return (check);
 }
 
 int ft_printf(const char *input, ...)
@@ -240,11 +274,13 @@ int ft_printf(const char *input, ...)
 	{
 		if (s.str[s.i] == '%')
 		{
-			parser(&s, &args);
+			if (parser(&s, &args) == 0)
+				return (-1);
 		}
 		else
 		{
-			ft_putchar_fd(s.str[s.i], 1);
+			if (ft_putchar_fd(s.str[s.i], 1) == 0)
+				return (-1);
 			s.count += 1;
 			s.i++;
 		}
@@ -263,7 +299,7 @@ int	main()
 //	printf("%dp2", printf("%dcoucou|%*d|\n", 55, 3, 10));
 	int value = 0;
 	int *pt = &value;
-
+	char *str = "coucou toi";
 		
 	int temp = printf("TRU:%pG\n", pt);
 	int temp2 = ft_printf("MY_:%pG\n", pt);
@@ -274,11 +310,7 @@ int	main()
 
 	return (0);
 }
-
-
-
 /*
- *
  *
  *
  *			printf + params
@@ -298,16 +330,6 @@ int	main()
  *   * permet de prendre l'entrée paramètre (dans l'ordre de capture)
  *
  *	# conversion dans une autre base
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
  *
  *
  *
