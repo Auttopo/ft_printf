@@ -10,19 +10,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdarg.h>
+
 #include <unistd.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "ft_printf.h"
 
 //int ft_printf(const char *, ...);
-
-typedef struct s_strc
-{
-	const char	*str;
-	size_t		i;
-	size_t		count;
-} s_strc;
 
 /*-HELPERS------------------------------------------------------------------*/
 
@@ -60,17 +54,17 @@ int	ft_putnbr_fd(size_t *count, long long n, int fd)
 	return (1);
 }
 
-void	hex_len(uintptr_t n, int *len)
+void	hex_len(unsigned long long n, int *len)
 {
 	if (n > 15)
 		hex_len(n / 16, len);
 	*len += 1;
 }
 
-void	convert_base(long long num, long long base, char *tbl, char *dest)
+void	convert_base(unsigned long long num, unsigned long long base, char *tbl, char *dest)
 {
-	long long	quot;
-	long long	rest;
+	unsigned long long	quot;
+	unsigned long long	rest;
 
 	quot = num / base;
 	rest = num % base;
@@ -83,7 +77,7 @@ void	convert_base(long long num, long long base, char *tbl, char *dest)
 	}
 }
 
-char	*convertor(s_strc *s, long long n, char indice)
+char	*convertor(s_strc *s, unsigned long long n, char indice)
 {
 	char	*dest;
 	int		len;
@@ -144,6 +138,13 @@ int	s_case(s_strc *s, va_list *args)
 
 	len = 0;
 	temp = va_arg(*args, char *);
+	if (temp == NULL)
+	{
+		if (write(1, "(null)", 6) < 1)
+			return (0);
+		s->count += 6;
+		return (1);
+	}
 	if (ft_putstr_fd(temp, 1) < 1)
 		return (0);
 	while (temp[len])
@@ -154,12 +155,10 @@ int	s_case(s_strc *s, va_list *args)
 
 int	p_case(s_strc *s, va_list *args)
 {
-	void		*temp;
 	char		*str_adr;
-	uintptr_t	adress;
+	unsigned long long	adress;
 
-	temp = va_arg(*args, void *);
-	adress = (uintptr_t)temp;
+	adress = va_arg(*args, unsigned long long);
 	if (adress == 0)
 		return (void_case(s));
 	str_adr = convertor(s, adress, 'p');
@@ -215,9 +214,7 @@ int	parser(s_strc *s, va_list *args)
 
 	s->i += 1;
 	check = 1;
-	if (s->str[s->i] == '%')
-		check = perce_case(s);
-	else if (s->str[s->i] == 'c')
+	if (s->str[s->i] == 'c')
 		check = c_case(s, args);
 	else if (s->str[s->i] == 's')
 		check = s_case(s, args);
@@ -231,6 +228,12 @@ int	parser(s_strc *s, va_list *args)
 		check = x_cases(s, args, 'X');
 	else if (s->str[s->i] == 'u')
 		check = u_case(s, args);
+	else if (s->str[s->i] == '%')
+		check = perce_case(s);
+	else
+	{
+		perce_case(s);
+	}
 	s->i += 1;
 	return (check);
 }
@@ -264,28 +267,38 @@ int	ft_printf(const char *input, ...)
 }
 
 // MAIN--------------------------------------------------//
-
+/*
+#include <limits.h>
 #include <stdio.h>
 int	main()
 {
+	
 	char car = 'c';
 	char *str = "coucou toi";
 	int	cool_value = 914141392;
-	int value = 2147483648;
-	int uvalue = 4147483648;
+	int value = 2147483647;
+	unsigned int uvalue = 4147483647;
 	int *ptn = NULL;
-		
-	int temp = printf("TRU: |%c|%%c |%s|%%s |%p|%%pn |%p|%%p |%d|%%d |%i|%%i |%x|%%x |%X|%%X |%u|%%u\n\n"
+	
+//	int temp = 0;
+	  int temp = printf("\nTRU: |%c|%%c |%s|%%s |%p|%%pn |%p|%%p |%d|%%d |%i|%%i |%x|%%x |%X|%%X |%u|%%u %"
 			, car, str, ptn, &ptn, value, value, cool_value, cool_value, uvalue);
-	int temp2 = ft_printf("MY_: |%c|%%c |%s|%%s |%p|%%pn |%p|%%p |%d|%%d |%i|%%i |%x|%%x |%X|%%X |%u|%%u\n\n"
+	  printf("\n");
+int temp2 = ft_printf("\nMY_: |%c|%%c |%s|%%s |%p|%%pn |%p|%%p |%d|%%d |%i|%%i |%x|%%x |%X|%%X |%u|%%u %"
 			, car, str, ptn, &ptn, value, value, cool_value, cool_value, uvalue);
 
-	printf("TRU:%d |MY:%d\n", temp, temp2);
+	printf("\nTRUV:%d |MYV:%d\n", temp, temp2);
+
+
+//	int *p;
+//	printf(" NULL %s NULL \n", NULL);
+//	ft_printf(" NULL %s NULL ", NULL);
+	
 	
 
 	return (0);
 }
-
+*/
 /*
  *
  *
