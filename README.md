@@ -62,8 +62,9 @@ int main(void)
 ```
 
 Output:
-`the 8 value is stored at 0x7ffc0f11e31c address`
-
+```bash
+the 8 value is stored at 0x7ffc0f11e31c address`
+```
 
 
 
