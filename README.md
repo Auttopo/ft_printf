@@ -5,8 +5,7 @@
 
 # `ft_printf`
 
-Project archived library : `ft_printf.a`
-
+Project archived library : `ft_printf.a`  
 Project header : `ft_printf.h`
 
 Prototype : `int ft_printf(const char *input, ...)`
@@ -80,10 +79,9 @@ the 8 value is stored at 0x7ffc0f11e31c address
 
 ### Technical references
 
-Linux manual page for `printf()` `va_arg()` `write()`
-
-GNU C Library documentation
-GNU Make documentation
+Linux manual page for `printf()` `va_arg()` `write()`  
+GNU C Library documentation  
+GNU Make documentation  
 42 subject PDF `ft_printf`
 
 
