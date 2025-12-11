@@ -11,9 +11,11 @@ $(NAME) : $(OBJ)
 	ar rcs $(NAME) $(OBJ) 
 
 clean :
-	rm -f $(NAME)
+	$(RM) $(OBJ)
 
 fclean :
-	rm -f $(NAME) $(OBJ)
+	$(RM) $(NAME) $(OBJ)
+
+re : fclean all
 
 .PHONY : all clean fclean re

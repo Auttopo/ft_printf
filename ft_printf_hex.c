@@ -67,7 +67,7 @@ int	p_case(t_strc *s, va_list *args)
 	char				*str_adr;
 	unsigned long long	adress;
 
-	adress = va_arg(*args, unsigned long long);
+	adress = (unsigned long long)va_arg(*args, void *);
 	if (adress == 0)
 	{
 		if (write(1, "(nil)", 5) < 1)
@@ -78,7 +78,7 @@ int	p_case(t_strc *s, va_list *args)
 	str_adr = convertor(s, adress, 'p');
 	if (str_adr == NULL)
 		return (0);
-	ft_putstr_fd(str_adr, 1);
+	ft_putstr(str_adr);
 	free(str_adr);
 	return (1);
 }
@@ -95,7 +95,7 @@ int	x_cases(t_strc *s, va_list *args, char indice)
 		str = convertor(s, temp, 'x');
 	if (str == NULL)
 		return (0);
-	ft_putstr_fd(str, 1);
+	ft_putstr(str);
 	free(str);
 	return (1);
 }

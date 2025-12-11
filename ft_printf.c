@@ -12,21 +12,21 @@
 
 #include "ft_printf.h"
 
-int	ft_putstr_fd(char *str, int fd)
+int	ft_putstr(char *str)
 {
 	size_t	i;
 
 	i = 0;
 	while (str[i])
 	{
-		if (write(fd, &str[i], 1) < 1)
+		if (write(1, &str[i], 1) < 1)
 			return (0);
 		i++;
 	}
 	return (1);
 }
 
-int	ft_putnbr_fd(size_t *count, long long n, int fd)
+int	ft_putnbr(size_t *count, long long n)
 {
 	char	c;
 
@@ -39,10 +39,22 @@ int	ft_putnbr_fd(size_t *count, long long n, int fd)
 	}
 	c = (n % 10 + '0');
 	if (n > 9)
-		ft_putnbr_fd(count, (n / 10), fd);
-	if (write(fd, &c, 1) < 1)
+		ft_putnbr(count, (n / 10));
+	if (write(1, &c, 1) < 1)
 		return (0);
 	*count += 1;
+	return (1);
+}
+
+int	no_case(t_strc *s)
+{
+	if (s->str[s->i] == '\0')
+		return (0);
+	if (perce_case(s) == 0)
+		return (0);
+	if (write(1, &s->str[s->i], 1) < 1)
+		return (0);
+	s->count += 1;
 	return (1);
 }
 
@@ -66,8 +78,10 @@ int	parser(t_strc *s, va_list *args)
 		check = x_cases(s, args, 'X');
 	else if (s->str[s->i] == 'u')
 		check = u_case(s, args);
-	else
+	else if (s->str[s->i] == '%')
 		check = perce_case(s);
+	else
+		check = no_case(s);
 	s->i += 1;
 	return (check);
 }
@@ -101,6 +115,16 @@ int	ft_printf(const char *input, ...)
 }
 
 // MAIN--------------------------------------------------//
+/*
+#include <stdio.h>
+int main()
+{
+    int num = 9775807;
+    int my = ft_printf(" % @_%d", num);
+    int tru = printf("\n % @_%d", num);
+	printf("\nmy: %d tru: %d\n", my, tru);
+}
+*/
 /*
 #include <limits.h>
 #include <stdio.h>
