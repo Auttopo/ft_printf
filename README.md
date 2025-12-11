@@ -63,7 +63,7 @@ int main(void)
 
 Output:
 ```bash
-the 8 value is stored at 0x7ffc0f11e31c address`
+the 8 value is stored at 0x7ffc0f11e31c address
 ```
 
 
@@ -81,6 +81,7 @@ the 8 value is stored at 0x7ffc0f11e31c address`
 ### Technical references
 
 Linux manual page for `printf()` `va_arg()` `write()`
+
 GNU C Library documentation
 GNU Make documentation
 42 subject PDF `ft_printf`
