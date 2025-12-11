@@ -6,6 +6,7 @@
 # `ft_printf`
 
 Project archived library : `ft_printf.a`
+
 Project header : `ft_printf.h`
 
 Prototype : `int ft_printf(const char *input, ...)`
@@ -51,15 +52,14 @@ Only the following format specifiers are functional:
 
 
 ### Example of usage:
-`
-int main(void)
-{
-    int num = 8;
-    ft_printf("the %d value is stored at %p address\n", num, &num);
 
-    return (0);
-}
-`
+`int main(void)`
+`{`
+`    int num = 8;`
+`    ft_printf("the %d value is stored at %p address\n", num, &num);`
+`    return (0);`
+`}`
+
 Output:
 `the 8 value is stored at 0x7ffc0f11e31c address`
 
